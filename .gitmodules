@@ -1,0 +1,6 @@
+[submodule "zigzag"]
+	path = zigzag
+	url = https://github.com/InnateraSE/zigzag.git
+[submodule ".external"]
+	path = .external
+	url = https://github.com/InnateraSE/zigzag.git
