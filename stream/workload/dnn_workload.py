@@ -3,21 +3,22 @@ from typing import Any
 from copy import deepcopy
 
 from stream.workload.computation.computation_node import ComputationNode
-from stream.workload.onnx_workload import ComputationNodeWorkload
-
+from zigzag.utils import DiGraphWrapper
 logger = logging.getLogger(__name__)
 
 
-class DNNWorkloadStream(ComputationNodeWorkload):
+class DNNWorkloadStream(DiGraphWrapper[ComputationNode]):
     """
     Collect all the algorithmic workload information here.
     Similar to `DNNWorkload` from ZigZag, but returns a DiGraph of ComputationNodes instead of LayerNodes.
 
     :return (self): Directed Graph with nodes the layers and edges the connections between layers.
     """
-    def __init__(self, nodes: list[ComputationNode], **attr: Any):
+    def __init__(self, nodes: list[ComputationNode] = None, **attr: Any):
         super().__init__(**attr)  # type: ignore
 
+        if nodes is None:
+            return
         cn_id_to_obj: dict[int, ComputationNode] = {}
         self.layer_node_list = nodes
 
