@@ -50,6 +50,6 @@
 - name: Add
   core_allocation: [5]
   intra_core_tiling:
-    - K, all
+    - OY, all
   inter_core_tiling:
-    - OY, *
+    - K, *
