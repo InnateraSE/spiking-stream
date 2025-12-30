@@ -24,6 +24,7 @@ INTRA_CORE_MAPPING_DEFAULT = IntraCoreMappingAttributes(
             Constants.LAYER_OP_I: Constants.MEM_OP_1,
             Constants.LAYER_OP_W: Constants.MEM_OP_2,
             Constants.OUTPUT_LAYER_OP: Constants.OUTPUT_MEM_OP,
+            Constants.HIDDEN_LAYER_OP: Constants.HIDDEN_MEM_OP,
         }
     ),
 )
