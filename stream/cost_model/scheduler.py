@@ -176,7 +176,7 @@ class CoalaScheduler:
             # Step 0: get the start time: when core is available or predecessors finished
             self.check_and_sync_cores(best_candidate)
             core_idle_from = self.cores_idle_from[core.id]
-            timestep = max(core_idle_from, preds_end)
+            timestep = core_idle_from
 
             # Step 1: for operands that are too large to store in the core's memory, clear the memory so ZigZag can
             # optimize the loop ordering using the full memory size
@@ -191,14 +191,7 @@ class CoalaScheduler:
                 timestep = transfer_complete_timestep
 
             # Step 2: Transfer the tensors needed for this node to the core (from off-chip or from another core)
-            transfer_headstart = sum(
-                ceil(
-                    tensor.size
-                    / (self.offchip_core.get_top_memory_instance(tensor_operand).ports[0].bw_max * transfer_bw_fraction)
-                )
-                for tensor, tensor_operand in zip(sub_tensors_this_candidate_needs, tensors_operands, strict=False)
-            )
-            earliest_t = core_idle_from - transfer_headstart
+            earliest_t = core_idle_from
             for tensor, tensor_operand in zip(sub_tensors_this_candidate_needs, tensors_operands, strict=False):
                 transfer_complete_timestep = self.schedule_tensor_transfer(
                     tensor=tensor,
@@ -209,6 +202,7 @@ class CoalaScheduler:
                     transfer_bandwidth_fraction=transfer_bw_fraction,
                 )
                 timestep = max(timestep, transfer_complete_timestep)
+            timestep = max(core_idle_from, preds_end)
 
             # Step 2b: Create hidden tensor of this node if needed
             if best_candidate.skip_load and (not best_candidate.skip_store):
