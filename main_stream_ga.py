@@ -17,9 +17,9 @@ workload_path = "stream/inputs/examples/workload/resnet_time.yaml"
 mapping_path = "stream/inputs/examples/mapping/tpu_like_quad_core.yaml"
 mode = "stems"
 layer_stacks = None
-spatial_cutoff = 1
-temporal_cuttoff = 2
-nb_ga_generations = 4
+spatial_cutoff = 0
+temporal_cuttoff = 4
+nb_ga_generations = 2
 nb_ga_individuals = 4
 ##############################################################################################
 

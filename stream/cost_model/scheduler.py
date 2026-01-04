@@ -210,6 +210,31 @@ class CoalaScheduler:
                 )
                 timestep = max(timestep, transfer_complete_timestep)
 
+            # Step 2b: Create hidden tensor of this node if needed
+            if best_candidate.skip_load and (not best_candidate.skip_store):
+                hidden_tensor = best_candidate.get_hidden_tensor()
+                memory_operand = hidden_tensor.memory_operand
+                full_tensors_this_candidate_needs.append(hidden_tensor)
+                sub_tensors_this_candidate_needs.append(hidden_tensor)
+                core_to_add_output_to = (
+                    self.offchip_core if memory_operand in best_candidate.too_large_operands else core
+                )
+                transfer_complete_timestep = self.make_space_for_tensor(
+                    hidden_tensor,
+                    core_to_add_output_to,
+                    memory_operand,
+                    timestep,
+                    sub_tensors_this_candidate_needs,
+                )
+                timestep = transfer_complete_timestep
+                self.accelerator.spawn(
+                    hidden_tensor,
+                    core_to_add_output_to,
+                    memory_operand,
+                    initial_timestep=timestep,
+                    available_timestep=timestep + best_candidate.get_runtime(),
+                )                
+
             # Step 3: make space for the output tensor of this node
             output_tensor = best_candidate.get_output_tensor()
             output_memory_operand = output_tensor.memory_operand
@@ -477,6 +502,14 @@ class CoalaScheduler:
                 continue
             tensors_this_candidate_needs.append(node.operand_tensors[layer_op])
             tensors_operands.append(memory_op)
+        # State operand
+        if not node.skip_load:
+            hidden_tensor = node.get_hidden_tensor()
+            memory_op = hidden_tensor.memory_operand
+            if memory_op not in node.too_large_operands:
+                tensors_this_candidate_needs.append(hidden_tensor)
+                tensors_operands.append(memory_op)
+                
         # Non-constant operands
         for pred, _, edge_data in sorted(self.G.in_edges(node, data=True), key=itemgetter(0)):
             if pred.id == node.id:

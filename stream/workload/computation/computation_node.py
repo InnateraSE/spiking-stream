@@ -171,6 +171,9 @@ class ComputationNode(LayerNode, Node):
     def get_output_tensor(self) -> Tensor:
         return self.operand_tensors[self.output_operand]
 
+    def get_hidden_tensor(self) -> Tensor:
+        return self.operand_tensors[self.hidden_operands[0]]
+
     def get_total_inter_core_splits(self) -> int:
         """Return the total number of inter-core splits for this node, i.e. over how many cores this node is split"""
         if contains_wildcard(self.inter_core_tiling):
@@ -292,7 +295,7 @@ class ComputationNode(LayerNode, Node):
             else:
                 raise ValueError("Invalid hidden mode detected after updating loop ranges.")
         else:
-            self.set_hidden_mode(Constants.HIDDEN_LOAD_STORE_MODE)
+            self.set_hidden_mode(Constants.HIDDEN_VOLATILE_MODE)
 
     def extract_inter_core_mapping_attr(self):
         mapping_attr = InterCoreMappingAttributes(
