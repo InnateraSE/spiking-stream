@@ -202,8 +202,7 @@ class CoalaScheduler:
                     transfer_bandwidth_fraction=transfer_bw_fraction,
                 )
                 timestep = max(timestep, transfer_complete_timestep)
-            timestep = max(core_idle_from, preds_end)
-
+            timestep = max(timestep, preds_end)
             # Step 2b: Create hidden tensor of this node if needed
             if best_candidate.skip_load and (not best_candidate.skip_store):
                 hidden_tensor = best_candidate.get_hidden_tensor()
@@ -227,7 +226,7 @@ class CoalaScheduler:
                     memory_operand,
                     initial_timestep=timestep,
                     available_timestep=timestep + best_candidate.get_runtime(),
-                )                
+                )
 
             # Step 3: make space for the output tensor of this node
             output_tensor = best_candidate.get_output_tensor()
